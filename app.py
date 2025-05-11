@@ -1,23 +1,25 @@
 import streamlit as st
 import ee
+from google.oauth2 import service_account
 import geemap.foliumap as geemap
-from oauth2client.service_account import ServiceAccountCredentials
-import json
 
-st.set_page_config(layout="wide")
-st.title("🌍 使用服務帳戶連接 GEE 的 Streamlit App")
+# 從 Streamlit Secrets 讀取 GEE 服務帳戶金鑰 JSON
+service_account_info = st.secrets["GEE_SERVICE_ACCOUNT"]
 
-# 讀取 Streamlit Secret 中的 GEE 憑證
-gee_json = st.secrets["GEE_SERVICE_ACCOUNT"]
-
-# 轉為憑證物件
-credentials = ServiceAccountCredentials.from_json_keyfile_dict(
-    gee_json,
+# 使用 google-auth 進行 GEE 授權
+credentials = service_account.Credentials.from_service_account_info(
+    service_account_info,
     scopes=["https://www.googleapis.com/auth/earthengine"]
 )
 
-# 初始化 Earth Engine
+# 初始化 GEE
 ee.Initialize(credentials)
+
+
+###############################################
+st.set_page_config(layout="wide")
+st.title("🌍 使用服務帳戶連接 GEE 的 Streamlit App")
+
 
 # 地理區域
 point = ee.Geometry.Point([121.56, 25.03])
